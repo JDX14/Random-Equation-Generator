@@ -1,112 +1,139 @@
-# importing module
+import tkinter as tk
 import random
+from tkinter import messagebox
 
-# taking input and returning a string(the math question)
-def get_question(operation, Num1, Num2):
-    if operation == 1:
-        return f"How much is {Num1} + {Num2}?"
-    elif operation == 2:
-        return f"How much is {Num1} - {Num2}?"
-    elif operation == 3:
-        return f"How much is {Num1} * {Num2}?"
-    elif operation == 4:
-        return f"How much is {Num1} / {Num2:.1f}?"
-    else:
-        return f"How much is {Num1} {get_random_operator()} {Num2}?"
-
-# function to return random math operator
+#Function to return random math operator
 def get_random_operator():
     return random.choice(['+', '-', '*', '/'])
 
-# generate question based on difficulty and operator selected
+#Generate question based on difficulty and operator selected
 def generate_question(difficulty, operation):
-    # level 1 is single digit, level 2 has higher numbers
     if difficulty == 1:
         Num1 = random.randint(0, 9)
         Num2 = random.randint(0, 9)
     else:
         Num1 = random.randint(10, 99)
         Num2 = random.randint(10, 99)
-        
-# generating a random operator from the list
+
     if operation == 5:
         operation = random.randint(1, 4)
 
-# using '+' operator
     if operation == 1:
         correct_answer = Num1 + Num2
-    # using '-' operator
+        question = f"{Num1} + {Num2}"
     elif operation == 2:
         correct_answer = Num1 - Num2
-    # using '*' operator
+        question = f"{Num1} - {Num2}"
     elif operation == 3:
         correct_answer = Num1 * Num2
-    #using '/' operator
+        question = f"{Num1} * {Num2}"
     elif operation == 4:
         correct_answer = Num1 / Num2
-   # using random operator of the four
+        question = f"{Num1} / {Num2:.1f}"
     else:
         op = get_random_operator()
         if op == '+':
             correct_answer = Num1 + Num2
+            question = f"{Num1} + {Num2}"
         elif op == '-':
             correct_answer = Num1 - Num2
+            question = f"{Num1} - {Num2}"
         elif op == '*':
             correct_answer = Num1 * Num2
+            question = f"{Num1} * {Num2}"
         else:
             correct_answer = Num1 / Num2
+            question = f"{Num1} / {Num2:.1f}"
 
-    question = get_question(operation, Num1, Num2)
-    return question, correct_answer
+    return correct_answer, question
 
-# takes users answer and returns boolean value stating if answer is correct or not
+#Function to check the user's answer
 def check_answer(user_answer, correct_answer):
-    # to stop program and exit
-    if user_answer == -1:
-        print("Exiting program...")
+    try:
+        if float(user_answer) == correct_answer:
+            return True
+        else:
+            return False
+    except ValueError:
         return False
-    # answer is correct
-    elif user_answer == correct_answer:
-        print("Well done. Keep going.")
-        return True
-    # answer is wrong and must try again
-    else:
-        print("Wrong. Try again.")
-        return False
+
+#Function to handle button click to generate a question
+def generate():
+    difficulty = int(difficulty_var.get())
+    operation = int(operation_var.get())
     
-# main function
-def main():
-    # print statement to select level
-    print("Enter difficulty level (1 or 2):")
-    difficulty = int(input())
+    global correct_answer
+    correct_answer, question = generate_question(difficulty, operation)
+    
+    question_label.config(text=question)
+    answer_entry.delete(0, 'end')
 
-    # print statement to select operator
-    while True:
-        print("1 = addition\n2 = subtraction\n3 = multiplication\n4 = division\n5 = mixed operations")
-        print("Enter the operation (1 to 5):")
-        operation = int(input())
+#Function to handle checking the answer
+def submit():
+    user_answer = answer_entry.get()
+    
+    if check_answer(user_answer, correct_answer):
+        messagebox.showinfo("Correct!", "Well done! You got it right.")
+    else:
+        messagebox.showerror("Incorrect", "Wrong answer. Try again.")
 
-        # print math question
-        question, correct_answer = generate_question(difficulty, operation)
-        print(question)
+#Setting up the GUI window
+root = tk.Tk()
+root.title("Math Equation Generator")
 
-        while True:
-            user_answer = int(input("Enter your answer (-1 to exit): "))
+#Set the window size and allow resizing
+root.geometry("500x400")
+root.resizable(True, True)
 
-            # Check if the user wants to exit
-            if user_answer == -1:
-                print("Exiting program...")
-                return  # Exit the entire program
-            
-            if check_answer(user_answer, correct_answer):
-                break
+#Difficulty Level Selection
+difficulty_label = tk.Label(root, text="Select Difficulty Level:")
+difficulty_label.pack(pady=10)
 
-        # Check if the user wants to play again
-        play_again = input("Do you want to play again? (y/n): ")
-        if play_again.lower() == 'n':
-            print("Exiting program...")
-            break
+difficulty_var = tk.StringVar(value='1')
+difficulty_frame = tk.Frame(root)
+difficulty_frame.pack()
+difficulty_radiobutton1 = tk.Radiobutton(difficulty_frame, text="Level 1", variable=difficulty_var, value='1')
+difficulty_radiobutton2 = tk.Radiobutton(difficulty_frame, text="Level 2", variable=difficulty_var, value='2')
+difficulty_radiobutton1.pack(side=tk.LEFT, padx=10)
+difficulty_radiobutton2.pack(side=tk.LEFT, padx=10)
 
-# code will only run when script is executed
-if __name__ == '__main__':
-    main()
+#Operation Selection
+operation_label = tk.Label(root, text="Select Operation:")
+operation_label.pack(pady=10)
+
+operation_var = tk.StringVar(value='1')
+operation_frame = tk.Frame(root)
+operation_frame.pack()
+operation_radiobutton1 = tk.Radiobutton(operation_frame, text="Addition", variable=operation_var, value='1')
+operation_radiobutton2 = tk.Radiobutton(operation_frame, text="Subtraction", variable=operation_var, value='2')
+operation_radiobutton3 = tk.Radiobutton(operation_frame, text="Multiplication", variable=operation_var, value='3')
+operation_radiobutton4 = tk.Radiobutton(operation_frame, text="Division", variable=operation_var, value='4')
+operation_radiobutton5 = tk.Radiobutton(operation_frame, text="Mixed", variable=operation_var, value='5')
+
+operation_radiobutton1.pack(side=tk.LEFT, padx=10)
+operation_radiobutton2.pack(side=tk.LEFT, padx=10)
+operation_radiobutton3.pack(side=tk.LEFT, padx=10)
+operation_radiobutton4.pack(side=tk.LEFT, padx=10)
+operation_radiobutton5.pack(side=tk.LEFT, padx=10)
+
+#Generate Equation Button
+generate_button = tk.Button(root, text="Generate Question", command=generate)
+generate_button.pack(pady=10)
+
+#Equation
+question_label = tk.Label(root, text="Your question will appear here.", font=("Arial", 14))
+question_label.pack(pady=20)
+
+#Enter Answer
+answer_label = tk.Label(root, text="Enter Your Answer:")
+answer_label.pack(pady=5)
+
+answer_entry = tk.Entry(root, font=("Arial", 14))
+answer_entry.pack(pady=5)
+
+# Submit Button
+submit_button = tk.Button(root, text="Submit Answer", command=submit)
+submit_button.pack(pady=10)
+
+# Start the GUI event loop
+root.mainloop()
